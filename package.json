@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
-    "build": "echo 'No build step required for this project.'"
+    "build": "echo 'No build step required for this project.'",
+    "postinstall": "npx playwright install --with-deps chromium"
   },
   "keywords": [],
   "author": "",
