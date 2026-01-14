@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Runner</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+
+        <div class="card">
+            <button id="registerBtn" class="premium-btn">Register Car</button>
+            <div id="loaderContainer" class="hidden">
+                <div class="progress-bar">
+                    <div id="progress" class="progress-fill"></div>
+                </div>
+                <p id="timer">Estimated time: 25s</p>
+            </div>
+
+            <div id="resultContainer" class="hidden">
+                <h3>Last Registration Result</h3>
+                <img id="resultImg" src="" alt="Registration Result">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const registerBtn = document.getElementById('registerBtn');
+        const loaderContainer = document.getElementById('loaderContainer');
+        const resultContainer = document.getElementById('resultContainer');
+        const resultImg = document.getElementById('resultImg');
+        const progress = document.getElementById('progress');
+        const timer = document.getElementById('timer');
+
+        registerBtn.addEventListener('click', async () => {
+            registerBtn.disabled = true;
+            registerBtn.innerText = 'Running...';
+            loaderContainer.classList.remove('hidden');
+            resultContainer.classList.add('hidden');
+
+            let timeLeft = 25;
+            progress.style.width = '0%';
+
+            const interval = setInterval(() => {
+                timeLeft--;
+                timer.innerText = `Estimated time: ${timeLeft}s`;
+                progress.style.width = `${((25 - timeLeft) / 25) * 100}%`;
+                if (timeLeft <= 0) clearInterval(interval);
+            }, 1000);
+
+            try {
+                const response = await fetch('/run-test');
+                const result = await response.json();
+
+                // Stop countdown and show result immediately
+                clearInterval(interval);
+                progress.style.width = '100%';
+                timer.innerText = 'Test Finished!';
+
+                // Show screenshot with a cache buster
+                resultImg.src = '/screenshots/registration_success.png?t=' + new Date().getTime();
+                resultContainer.classList.remove('hidden');
+                registerBtn.disabled = false;
+                registerBtn.innerText = 'Register Camry';
+
+            } catch (error) {
+                clearInterval(interval);
+                console.error('Error running test:', error);
+                alert('An error occurred during registration.');
+                registerBtn.disabled = false;
+                registerBtn.innerText = 'Register Camry';
+            }
+        });
+    </script>
+</body>
+
+</html>
