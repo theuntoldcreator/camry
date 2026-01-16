@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: camry
+    env: docker
+    plan: free
+    branch: main
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: HEADLESS
+        value: true

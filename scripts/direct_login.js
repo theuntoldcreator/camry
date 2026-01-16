@@ -1,16 +1,21 @@
 const { chromium } = require("playwright");
 
 (async () => {
-    // Launch a visible browser maximized
+    // Use environment variable to determine headless mode
+    // On Render, we'll set HEADLESS=true
+    const isHeadless = process.env.HEADLESS === 'true';
+
+    // Launch settings adapted for environment
     const browser = await chromium.launch({
-        headless: false,
-        slowMo: 100, // Slightly slower for a smoother, premium look
-        args: ['--start-maximized']
+        headless: isHeadless,
+        slowMo: isHeadless ? 0 : 100, // No delay in prod for speed
+        args: isHeadless ? ['--no-sandbox', '--disable-setuid-sandbox'] : ['--start-maximized']
     });
 
-    // Create a context with null viewport to let --start-maximized work
+    // Create a context
+    // In headless, we set a fixed viewport. In headed (local), we let it maximize (viewport: null).
     const context = await browser.newContext({
-        viewport: null
+        viewport: isHeadless ? { width: 1280, height: 720 } : null
     });
 
     const page = await context.newPage();
