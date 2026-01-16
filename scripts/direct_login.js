@@ -2,8 +2,8 @@ const { chromium } = require("playwright");
 
 (async () => {
     // Use environment variable to determine headless mode
-    // On Render, we'll set HEADLESS=true
-    const isHeadless = process.env.HEADLESS === 'true';
+    // On Render, 'RENDER' env var is 'true'. We force headless there.
+    const isHeadless = process.env.HEADLESS === 'true' || process.env.RENDER === 'true';
 
     // Launch settings adapted for environment
     const browser = await chromium.launch({
