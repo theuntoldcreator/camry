@@ -5,13 +5,12 @@ const fs = require('fs');
 const app = express();
 const port = process.env.PORT || 3000;
 
-const SCREENSHOT_PATH = path.join(__dirname, 'registration_success.png');
+const SCREENSHOT_PATH = path.join(__dirname, 'public', 'login_success.png');
 
 app.use(express.static('public'));
-app.use('/screenshots', express.static(path.join(__dirname)));
 
-app.get('/run-test', (req, res) => {
-    console.log('Register button clicked. Checking for existing screenshot...');
+app.get('/run-login', (req, res) => {
+    console.log('Direct login request received...');
 
     // 1. Pre-execution cleanup: Delete old screenshot if it exists
     if (fs.existsSync(SCREENSHOT_PATH)) {
@@ -23,35 +22,12 @@ app.get('/run-test', (req, res) => {
         }
     }
 
-    console.log('Running Playwright test...');
-    exec('npx playwright test tests/register.spec.js --project=chromium', (error, stdout, stderr) => {
+    exec('node scripts/direct_login.js', (error, stdout, stderr) => {
         if (error) {
-            console.error(`Playwright Error: ${error.message}`);
-            return res.status(500).json({ status: 'error', message: "Test failed or Playwright not set up correctly on server." });
+            console.error(`Automation Error: ${error.message}`);
+            return res.status(500).json({ status: 'error', message: "Login failed." });
         }
-
-        console.log('Playwright test execution finished.');
-
-        // Check if the file actually exists before telling the frontend it's ready
-        if (fs.existsSync(SCREENSHOT_PATH)) {
-            console.log('Screenshot confirmed at:', SCREENSHOT_PATH);
-
-            // Schedule deletion of new screenshot after 5 minutes
-            console.log('Scheduling new screenshot deletion in 5 minutes...');
-            setTimeout(() => {
-                if (fs.existsSync(SCREENSHOT_PATH)) {
-                    fs.unlink(SCREENSHOT_PATH, (err) => {
-                        if (err) console.error(`Error deleting screenshot: ${err.message}`);
-                        else console.log('Screenshot deleted automatically after 5 minutes.');
-                    });
-                }
-            }, 300000);
-
-            res.json({ status: 'success' });
-        } else {
-            console.error('Test finished but screenshot was not found at:', SCREENSHOT_PATH);
-            res.status(500).json({ status: 'error', message: 'Test finished but no screenshot was generated.' });
-        }
+        res.json({ status: 'success' });
     });
 });
 

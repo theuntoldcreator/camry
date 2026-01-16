@@ -4,77 +4,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registration Runner</title>
+    <title>2549</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&display=swap" rel="stylesheet">
 </head>
 
 <body>
-    <div class="container">
+    <div class="container" style="max-width: 400px;">
+        <h1 style="margin-bottom: 2rem;">2549</h1>
 
-        <div class="card">
-            <button id="registerBtn" class="premium-btn">Register Car</button>
-            <div id="loaderContainer" class="hidden">
+        <div class="card" style="padding: 2rem;">
+            <button id="loginBtn" class="premium-btn" style="width: 100%; padding: 1.5rem;">Launch Resident
+                Login</button>
+
+            <div id="loaderContainer" class="hidden" style="margin-top: 2rem;">
                 <div class="progress-bar">
                     <div id="progress" class="progress-fill"></div>
                 </div>
-                <p id="timer">Estimated time: 25s</p>
+                <p id="timer" style="margin-top: 1rem;">Opening Dashboard...</p>
             </div>
 
-            <div id="resultContainer" class="hidden">
-                <h3>Last Registration Result</h3>
-                <img id="resultImg" src="" alt="Registration Result">
+            <div id="resultContainer" class="hidden" style="margin-top: 2rem; text-align: center;">
+                <h3 style="margin-bottom: 1rem; color: #fff;">Automation Result</h3>
+                <div style="border: 2px solid rgba(255,255,255,0.1); border-radius: 12px; overflow: hidden;">
+                    <img id="resultImg" src="" alt="Login Success" style="width: 100%; display: block;">
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        const registerBtn = document.getElementById('registerBtn');
+        const loginBtn = document.getElementById('loginBtn');
         const loaderContainer = document.getElementById('loaderContainer');
         const resultContainer = document.getElementById('resultContainer');
         const resultImg = document.getElementById('resultImg');
         const progress = document.getElementById('progress');
-        const timer = document.getElementById('timer');
 
-        registerBtn.addEventListener('click', async () => {
-            registerBtn.disabled = true;
-            registerBtn.innerText = 'Running...';
+        loginBtn.addEventListener('click', async () => {
+            loginBtn.disabled = true;
+            loginBtn.innerText = 'Automation Running...';
             loaderContainer.classList.remove('hidden');
             resultContainer.classList.add('hidden');
 
-            let timeLeft = 25;
-            progress.style.width = '0%';
-
+            let timeLeft = 6;
+            const total = 6;
             const interval = setInterval(() => {
-                timeLeft--;
-                timer.innerText = `Estimated time: ${timeLeft}s`;
-                progress.style.width = `${((25 - timeLeft) / 25) * 100}%`;
-                if (timeLeft <= 0) clearInterval(interval);
-            }, 1000);
+                timeLeft -= 0.1;
+                progress.style.width = `${Math.min(((total - timeLeft) / total) * 100, 95)}%`;
+                if (timeLeft <= 0) {
+                    clearInterval(interval);
+                }
+            }, 100);
 
             try {
-                const response = await fetch('/run-test');
+                const response = await fetch('/run-login');
                 const result = await response.json();
 
-                // Stop countdown and show result immediately
                 clearInterval(interval);
                 progress.style.width = '100%';
-                timer.innerText = 'Test Finished!';
 
-                // Show screenshot with a cache buster
-                resultImg.src = '/screenshots/registration_success.png?t=' + new Date().getTime();
-                resultContainer.classList.remove('hidden');
-                registerBtn.disabled = false;
-                registerBtn.innerText = 'Register Camry';
+                if (result.status === 'success') {
+                    loginBtn.innerText = 'Login Successful!';
+                    loginBtn.style.background = '#059669'; // Success green
+
+                    // Show screenshot with cache busting
+                    resultImg.src = 'login_success.png?t=' + new Date().getTime();
+                    resultContainer.classList.remove('hidden');
+                } else {
+                    throw new Error(result.message || 'Unknown error');
+                }
+
+                setTimeout(() => {
+                    loginBtn.disabled = false;
+                    loginBtn.innerText = 'Launch Resident Login';
+                    loginBtn.style.background = ''; // Reset
+                    loaderContainer.classList.add('hidden');
+                }, 3000);
 
             } catch (error) {
                 clearInterval(interval);
-                console.error('Error running test:', error);
-                alert('An error occurred during registration.');
-                registerBtn.disabled = false;
-                registerBtn.innerText = 'Register Camry';
+                console.error('Error:', error);
+                alert('Login failed: ' + error.message);
+                loginBtn.disabled = false;
+                loginBtn.innerText = 'Launch Resident Login';
+                loaderContainer.classList.add('hidden');
             }
         });
     </script>
