@@ -32,24 +32,27 @@ const { chromium } = require("playwright");
         await page.goto("https://app.apartmentpermits.com/resident", { waitUntil: "networkidle" });
 
         console.log("Selecting property...");
-        await page.click('text=Select Property');
+        // Use modern locator API
+        await page.locator('text=Select Property').click();
 
-        // Use type for a smoother "human" typing effect
-        await page.type('input[placeholder*="Name or address"]', PROPERTY_SEARCH, { delay: 100 });
+        // Use fill instead of type for stability (avoids 'page closed' issues during slow typing)
+        const searchInput = page.locator('input[placeholder*="Name or address"]');
+        await searchInput.waitFor({ state: 'visible' });
+        await searchInput.fill(PROPERTY_SEARCH);
 
-        await page.waitForSelector(`text=${PROPERTY_SEARCH}`, { state: 'visible' });
-        await page.click(`text=${PROPERTY_SEARCH}`);
+        await page.locator(`text=${PROPERTY_SEARCH}`).waitFor({ state: 'visible' });
+        await page.locator(`text=${PROPERTY_SEARCH}`).click();
 
         // ---- Fill unit and PIN ----
         console.log("Filling unit and PIN...");
-        await page.type('input[placeholder="Unit Number"]', UNIT, { delay: 100 });
-        await page.type('input[placeholder*="Last 4"]', PIN, { delay: 100 });
+        await page.locator('input[placeholder="Unit Number"]').fill(UNIT);
+        await page.locator('input[placeholder*="Last 4"]').fill(PIN);
 
         // Small pause for stability and visual confirmation
         await page.waitForTimeout(800);
 
         console.log("Clicking Sign In...");
-        await page.click('button:has-text("Sign In")');
+        await page.locator('button:has-text("Sign In")').click();
 
         console.log("Login submitted. Navigating to dashboard...");
 
@@ -73,7 +76,10 @@ const { chromium } = require("playwright");
     }
 
     // Close browser to allow the process to exit and server to respond
-    await browser.close();
+    // await browser.close();
+    // if (!success) process.exit(1);
 
-    if (!success) process.exit(1);
+    // Keep the browser open indefinitely for debugging
+    console.log("Browser remaining open for debugging...");
+    await new Promise(() => { });
 })();
