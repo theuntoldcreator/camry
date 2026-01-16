@@ -76,10 +76,13 @@ const { chromium } = require("playwright");
     }
 
     // Close browser to allow the process to exit and server to respond
-    // await browser.close();
-    // if (!success) process.exit(1);
-
-    // Keep the browser open indefinitely for debugging
-    console.log("Browser remaining open for debugging...");
-    await new Promise(() => { });
+    // Only close if in Headless mode (Render), otherwise keep open for local debugging
+    if (isHeadless) {
+        await browser.close();
+        if (!success) process.exit(1);
+    } else {
+        // Keep the browser open indefinitely for debugging locally
+        console.log("Browser remaining open for debugging...");
+        await new Promise(() => { });
+    }
 })();

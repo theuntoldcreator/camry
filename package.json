@@ -4,9 +4,9 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "PLAYWRIGHT_BROWSERS_PATH=./ms-playwright node server.js",
-    "dev": "PLAYWRIGHT_BROWSERS_PATH=./ms-playwright node server.js",
-    "build": "npm install && PLAYWRIGHT_BROWSERS_PATH=./ms-playwright npx playwright install --with-deps chromium"
+    "start": "PLAYWRIGHT_BROWSERS_PATH=node_modules/.playwright node server.js",
+    "dev": "PLAYWRIGHT_BROWSERS_PATH=node_modules/.playwright node server.js",
+    "build": "npm install && PLAYWRIGHT_BROWSERS_PATH=node_modules/.playwright npx playwright install --with-deps chromium"
   },
   "keywords": [],
   "author": "",
